@@ -1,0 +1,12 @@
+# Executable / Binary Files (outputs)
+*.elf
+*.gba
+*.sav
+*.exe
+*.bin
+
+# Build Dir (made with make command)
+build/
+
+# VS Code
+.vscode/
