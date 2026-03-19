@@ -1,9 +1,6 @@
 #include <tonc.h>
-#include "block.h"
+#include "piece.h"
 #include "graphics.h"
-
-// Point for moving block
-BG_POINT block_pt = {5,8};
 
 int main()
 {
@@ -15,30 +12,51 @@ int main()
 	REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 ;
 
 	// draw some blocks
-	drawBlock((BG_POINT){2,2}, Z);
-	drawBlock((BG_POINT){2,3}, O);
-	drawBlock((BG_POINT){3,2}, L);
-	drawBlock((BG_POINT){3,3}, J);
-	drawBlock((BG_POINT){4,2}, T);
-	drawBlock((BG_POINT){4,3}, S);
-	drawBlock(block_pt, I);
+	// draw_block((BG_POINT){2,2}, Z);
+	// draw_block((BG_POINT){2,3}, O);
+	// draw_block((BG_POINT){3,2}, L);
+	// draw_block((BG_POINT){3,3}, J);
+	// draw_block((BG_POINT){4,2}, T);
+	// draw_block((BG_POINT){4,3}, S);
+	// draw_block((BG_POINT){5,2}, I);
+
+	// Draw basic blocks off screen
+	for(int i = Z; i < X; i++){
+		draw_piece(make_piece(i,(BG_POINT){-3,(i*3)-5}));
+	}
+
+	// Test Piece to debug piece physics
+	blocktype t = Z;
+	piece test = make_piece(t, (BG_POINT){5,15});
+	draw_piece(test);
 
 	while(1)
 	{
 		VBlankIntrWait();
+		static u32 frame = 0;
+		frame++;
+		frame%=600; // only count up 10 seconds to prevent weird rollover behavior
 		
-		// erase, update, draw
-		eraseBlock(block_pt);
+		if (frame&0x2){// every four frames (just to slow down)
+			key_poll();
+			
+			// erase, update, draw
+			move_piece(&test,key_tri_horz(),key_tri_vert());
 
-		key_poll();
-		block_pt.x += key_tri_horz();
-		block_pt.y += key_tri_vert();
-
-		drawBlock(block_pt,I);
-
-
-		if(key_hit(KEY_A)){
-			swap_tile(CBB_1,BLOCK_TILE,BLOCK2_TILE);// swap tile used for block
+			if(key_hit(KEY_A)){// Rotate CW
+				rotate_piece(&test,1);
+			}
+			if(key_hit(KEY_B)){// Rotate CCW
+				rotate_piece(&test,-1);
+			}
+			if(key_hit(KEY_START)){// swap tile used for block
+				swap_tile(CBB_1,BLOCK_TILE,BLOCK2_TILE);
+			}
+			if(key_hit(KEY_SELECT)){// Swap piece for new one
+				erase_piece(test);
+				test = make_piece((t++)%X, (BG_POINT){5,15});
+				draw_piece(test);
+			}
 		}
 		
 	}

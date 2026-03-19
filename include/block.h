@@ -15,7 +15,7 @@ typedef enum {
     X = ERROR_PALLET,
 } blocktype; // determines color
 
-void drawBlock(BG_POINT point, blocktype b);
-void eraseBlock(BG_POINT point);
+void draw_block(BG_POINT point, blocktype b);
+void erase_block(BG_POINT point);
 
 #endif // BLOCK_H
