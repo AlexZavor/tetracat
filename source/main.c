@@ -36,6 +36,7 @@ int main()
 		static u32 frame = 0;
 		frame++;
 		frame%=600; // only count up 10 seconds to prevent weird rollover behavior
+		// TODO: is Modulo really slow?
 		
 		if (frame&0x2){// every four frames (just to slow down)
 			key_poll();

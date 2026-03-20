@@ -1,11 +1,15 @@
 #include "piece.h"
+#include "board.h"
 
 // Helper function to check if a position collides or is out of bounds
 inline bool collides(BG_POINT point){
-    if( (point.x < 0) || (point.x >= 10) || (point.y < 0) || (point.y >= 20) ){
+    if( (point.x < 0) || (point.x >= BOARD_WIDTH) || (point.y < 0) || (point.y >= BOARD_HEIGHT) ){
         return true;
     }
     // Check board
+    if(board_is_filled(point.x, point.y)){
+        return true;
+    }
     return false;
 }
 
@@ -251,16 +255,20 @@ inline void erase_piece(piece p){
 }
 
 inline bool move_piece(piece* p, s32 x, s32 y){
+    if((x==0)&&(y==0)) return true;
     piece temp = *p;
+
+    erase_piece(*p);
     
     for(int b = 0; b < BLOCKS_IN_PIECE; b++){
         temp.blocks[b].x += x;
         temp.blocks[b].y += y;
         if(collides(temp.blocks[b])){
+            draw_piece(*p);
             return false;
         }
     }
-    erase_piece(*p);
+
     *p = temp;
     draw_piece(*p);
 
@@ -277,16 +285,18 @@ bool rotate_piece(piece *p, s32 r){
     }
     temp.rotation %= 4; // positive wrap
     
+    erase_piece(*p);
+
     // Do the rotation
     update_rotation(&temp);
     // Check collision
     for(int b = 1; b < BLOCKS_IN_PIECE; b++){
         if(collides(temp.blocks[b])){
+            draw_piece(*p);
             return false;
         }
     }
 
-    erase_piece(*p);
     *p = temp;
     draw_piece(*p);
     return true;
