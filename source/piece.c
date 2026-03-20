@@ -243,6 +243,39 @@ piece make_piece(blocktype type, BG_POINT start_location){
     return p;
 }
 
+piece new_piece(){
+    // TODO: Random gen
+    static blocktype type = Z;
+    type++;
+    if(type == X){
+        type = Z;
+    }
+    return make_piece(type, (BG_POINT){NEXT_PIECE_X, NEXT_PIECE_Y});;
+}
+
+bool start_piece(piece *p){
+    piece temp = *p;
+
+    erase_piece(*p);
+
+    temp.blocks[0].x = START_POS_X;
+    temp.blocks[0].y = START_POS_Y;
+
+    update_rotation(&temp);
+    
+    for(int b = 0; b < BLOCKS_IN_PIECE; b++){
+        if(collides(temp.blocks[b])){
+            draw_piece(temp);
+            return false;
+        }
+    }
+
+    *p = temp;
+    draw_piece(temp); // just draws anyways. I think it looks better
+
+    return true;
+}
+
 inline void draw_piece(piece p){
     for(int b = 0; b < BLOCKS_IN_PIECE; b++){
         draw_block(p.blocks[b], p.type);

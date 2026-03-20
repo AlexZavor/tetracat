@@ -14,6 +14,12 @@ typedef struct{
 // Create new piece in start orientation
 piece make_piece(blocktype type, BG_POINT start_location);
 
+// Get new piece, picks psudo-random piece, placed in new piece location
+piece new_piece();
+
+// Moves piece to top of the game board, returns false if collides immediately (Game Over Condition)
+bool start_piece(piece* p);
+
 // Draw piece
 void draw_piece(piece p);
 // Erase Piece
