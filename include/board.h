@@ -20,6 +20,7 @@ bool board_row_filled(int y);
 
 // Clears all blocks in row
 void board_clear_row(int y);
+void board_hide_row(int y, bool hide);
 
 // Fills array with indexs of filled rows
 void get_filled_rows(int* rows, int* count);

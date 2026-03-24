@@ -16,6 +16,7 @@
 
 // Pallet Indexs
 #define BACKGROUND_PALLET 0
+#define TEXT_PALLET 1
 #define RED_PALLET 2
 #define GREEN_PALLET 3
 #define PURPLE_PALLET 4
@@ -31,6 +32,9 @@ void init_graphics();
 
 // Swap two tiles in char block
 void swap_tile(int char_block, int old, int new);
+
+// writes data in tile to tile memory
+void write_tile(int index, TILE tile);
 
 SCR_ENTRY *get_block_map();
 

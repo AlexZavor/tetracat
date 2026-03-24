@@ -35,6 +35,8 @@ void init_graphics(){
 	tile_mem[CBB_1][BLOCK2_TILE]= tiles[BLOCK2_TILE];
 
 	// Create Pallets
+	//   Text
+	pal_bg_bank[TEXT_PALLET][1] = RGB15(31,31,31); // white
     //   Red
 	pal_bg_bank[RED_PALLET][1]= RGB15(24,  0,  0); // Standard
 	pal_bg_bank[RED_PALLET][2]= RGB15(15,  0,  0); // Shadow
@@ -68,6 +70,10 @@ void init_graphics(){
 	pal_bg_bank[ERROR_PALLET][2]= RGB15(31, 20, 20); // Shadow
 	pal_bg_bank[ERROR_PALLET][3]= RGB15(31, 10, 10); // Highlight
 
+}
+
+inline void write_tile(int index, TILE tile){
+	tile_mem[CBB_1][index]= tile;
 }
 
 inline SCR_ENTRY *get_block_map()

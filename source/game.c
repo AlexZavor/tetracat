@@ -1,21 +1,39 @@
 #include "game.h"
 #include "piece.h"
 #include "board.h"
+#include "text.h"
 #include <tonc.h>
 
-#define FLASH_TIME 5 // length of row cleared flash
+#define BLINK_TIME 6 // length of row cleared blinking
+#define BLINK_COUNT 4
+bool blinking = false;
 
-int level = 1;
+int level = 10;
 int score = 0;
 int tick_timer = 0;
+int cleared_lines_this_level = 0; // increment to 0 and roll over to next level
+
+
+int filled_rows[4]; // array to keep what rows to clear
+int filled_rows_count = 0;
 
 piece next_piece;
 piece curr_piece;
 
+// print score on screen
+inline void print_score(){
+    draw_int(score, 19, 0); // draw score
+    draw_int(level, 19, 1); // draw level
+}
+
 // Helper Function to set timer based on current level (speeds up game)
 inline void reset_timer(){
-    tick_timer = 30;
-    //TODO: set timer based on level
+    if(level < 30){
+        tick_timer = 30-level;
+    }else{
+        tick_timer = 1; // full speed
+    }
+    print_score();
 }
 
 // Helper function to clear out rows, clears, collapses, and scores
@@ -49,19 +67,55 @@ inline void clear_filled_rows(){
         break;
         default: break;
     }
+    // advance level
+    cleared_lines_this_level++;
+    if(cleared_lines_this_level >= level * 10){
+        cleared_lines_this_level -= level * 10;
+        level++;
+    }
+    print_score();
+}
+
+// hides rows
+inline void hide_filled_rows(bool hide){
+    for(int i=0; i<filled_rows_count; i++){
+        board_hide_row(filled_rows[i], hide);
+    }
 }
 
 void game_init(){
-    level = 1;
-    score = 0;
     next_piece = new_piece();
     draw_piece(next_piece);
     curr_piece = make_piece(X,(BG_POINT){0,0});
     reset_timer();
+    init_numeric();
+    print_score();
+}
+
+// Micro state machine to make blocks blink when cleared
+void blinking_tick(){
+    static int blink = 0;
+    static int blink_timer = BLINK_TIME;
+    blink_timer--;
+    if(blink_timer == 0){
+        blink++;
+        blink_timer = BLINK_TIME;
+        hide_filled_rows(blink%2);
+    }
+    if(blink == BLINK_COUNT * 2){ // end of blinking state
+        clear_filled_rows();
+        blink = 0;
+        blink_timer = BLINK_TIME;
+        blinking = false;
+        filled_rows_count = 0;
+    }
 }
 
 void game_tick(){
-    // TODO: draw score
+    if(blinking){ // blinks when rows cleared
+        blinking_tick();
+        return;
+    }
 
     // Piece draws wrong if tried to move while dead
     if(curr_piece.type == X) goto skip_input; // fixes error in dumb way, just move it away.
@@ -108,10 +162,11 @@ skip_input:
             bool moved = move_piece(&curr_piece, 0, 1);//moves down once every tick
             if (!moved){
                 // new piece check for row clear
-                // int filled_rows[4]; // array to keep what rows to clear
-                // int filled_rows_count = 0;
-                // get_filled_rows(&filled_rows, &filled_rows_count);
-                clear_filled_rows();
+                get_filled_rows(filled_rows, &filled_rows_count);
+
+                if(filled_rows_count > 0){
+                    blinking = true;
+                }
 
                 curr_piece.type = X; // kills piece to get a new one
             }

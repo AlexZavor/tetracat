@@ -1,0 +1,8 @@
+- Audio
+    - sfx
+    - music
+- menu
+- game over screen/banner
+- restart game
+- Random Generation
+- Modulo testing (is it slow?)

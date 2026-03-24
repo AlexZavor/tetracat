@@ -17,5 +17,6 @@ typedef enum {
 
 void draw_block(BG_POINT point, blocktype b);
 void erase_block(BG_POINT point);
+void hide_block(BG_POINT point, bool hide);
 
 #endif // BLOCK_H

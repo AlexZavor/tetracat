@@ -3,7 +3,7 @@
 
 // Helper function to check if a position collides or is out of bounds
 inline bool collides(BG_POINT point){
-    if( (point.x < 0) || (point.x >= BOARD_WIDTH) || (point.y < 0) || (point.y >= BOARD_HEIGHT) ){
+    if( (point.x < 0) || (point.x >= BOARD_WIDTH)  || (point.y >= BOARD_HEIGHT) ){ // || (point.y < 0) not included so we can rotate quickly. probably fine.
         return true;
     }
     // Check board

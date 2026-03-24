@@ -23,6 +23,13 @@ void board_clear_row(int y)
     }
 }
 
+void board_hide_row(int y, bool hide)
+{
+    for (int x = 0; x < BOARD_WIDTH; x++){
+        hide_block((BG_POINT){x,y}, hide);
+    }
+}
+
 void get_filled_rows(int *rows, int *count){
     for(int row = 0; row < BOARD_HEIGHT; row ++){
         bool filled = board_row_filled(row);
