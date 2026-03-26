@@ -3,12 +3,14 @@
 #include "board.h"
 #include "text.h"
 #include <tonc.h>
+#include <maxmod.h>
+#include "soundbank.h"
 
 #define BLINK_TIME 6 // length of row cleared blinking
 #define BLINK_COUNT 4
 bool blinking = false;
 
-int level = 10;
+int level = 1;
 int score = 0;
 int tick_timer = 0;
 int cleared_lines_this_level = 0; // increment to 0 and roll over to next level
@@ -39,31 +41,31 @@ inline void reset_timer(){
 // Helper function to clear out rows, clears, collapses, and scores
 inline void clear_filled_rows(){
     // clear and collapse
-    int rows_colapsed = 0;
+    int rows_collapsed = 0;
     for(int i = BOARD_HEIGHT-1; i >= 0; i--){
-        if(rows_colapsed != 0){
-            board_row_swap(i,i-rows_colapsed);
+        if(rows_collapsed != 0){
+            board_row_swap(i,i-rows_collapsed);
         }
         while(board_row_filled(i)){
             board_clear_row(i);
-            rows_colapsed++;
-            board_row_swap(i,i-rows_colapsed);
+            rows_collapsed++;
+            board_row_swap(i,i-rows_collapsed);
         }
     }
-    if(rows_colapsed == 0) return; // nothing to score
+    if(rows_collapsed == 0) return; // nothing to score
     // scoreing
-    switch (rows_colapsed){
+    switch (rows_collapsed){
         case 1:
-            score += 40 * (rows_colapsed + 1);
+            score += 40 * (rows_collapsed + 1);
         break;
         case 2:
-            score += 100 * (rows_colapsed + 1);
+            score += 100 * (rows_collapsed + 1);
         break;
         case 3:
-            score += 300 * (rows_colapsed + 1);
+            score += 300 * (rows_collapsed + 1);
         break;
         case 4:
-            score += 1200 * (rows_colapsed + 1);
+            score += 1200 * (rows_collapsed + 1);
         break;
         default: break;
     }
@@ -120,12 +122,17 @@ void game_tick(){
     // Piece draws wrong if tried to move while dead
     if(curr_piece.type == X) goto skip_input; // fixes error in dumb way, just move it away.
 
+    // error moving, if it doesn't move right
+    bool moved = true;
+
     // handle input
     if(key_hit(KEY_A)){// Rotate CW
-        rotate_piece(&curr_piece,1);
+        moved = rotate_piece(&curr_piece,1);
+        mmEffect(SFX_ROT_CW);
     }
     if(key_hit(KEY_B)){// Rotate CCW
-        rotate_piece(&curr_piece,-1);
+        moved = rotate_piece(&curr_piece,-1);
+        mmEffect(SFX_ROT_CCW);
     }
     if(key_hit(KEY_START)){// swap tile used for block
         swap_tile(CBB_1,BLOCK_TILE,BLOCK2_TILE);
@@ -133,10 +140,14 @@ void game_tick(){
 
 
     if(key_hit(KEY_RIGHT)){// Move R
-        move_piece(&curr_piece, 1, 0);
+        moved = move_piece(&curr_piece, 1, 0);
     }
     if(key_hit(KEY_LEFT)){// Move L
-        move_piece(&curr_piece, -1, 0);
+        moved = move_piece(&curr_piece, -1, 0);
+    }
+
+    if(!moved){
+        mmEffect(SFX_BAD);
     }
 
 skip_input:
@@ -166,6 +177,14 @@ skip_input:
 
                 if(filled_rows_count > 0){
                     blinking = true;
+                    if(filled_rows_count == 4){
+                        // Tetris
+                        mmEffect(SFX_TETRIS);
+                    }else{
+                        mmEffect(SFX_POINT);
+                    }
+                }else{
+                    mmEffect(SFX_THUNK);
                 }
 
                 curr_piece.type = X; // kills piece to get a new one

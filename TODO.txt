@@ -1,5 +1,4 @@
 - Audio
-    - sfx
     - music
 - menu
 - game over screen/banner

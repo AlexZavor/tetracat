@@ -247,9 +247,7 @@ piece new_piece(){
     // TODO: Random gen
     static blocktype type = Z;
     type++;
-    if(type == X){
-        type = Z;
-    }
+    type = wrap(type,Z,X);
     return make_piece(type, (BG_POINT){NEXT_PIECE_X, NEXT_PIECE_Y});;
 }
 
@@ -313,10 +311,7 @@ bool rotate_piece(piece *p, s32 r){
     piece temp = *p;
     // Rotation wrapping
     temp.rotation += r;
-    if (temp.rotation<0){// negative wrap
-        temp.rotation = 3;
-    }
-    temp.rotation %= 4; // positive wrap
+    temp.rotation = wrap(temp.rotation, 0,4);
     
     erase_piece(*p);
 
